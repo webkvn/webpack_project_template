@@ -2,9 +2,11 @@
   "name": "webpack_project_template",
   "version": "1.0.0",
   "description": "webpack template",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack --config webpack.config.js",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -15,5 +17,17 @@
   "bugs": {
     "url": "https://github.com/webkvn/webpack_project_template/issues"
   },
-  "homepage": "https://github.com/webkvn/webpack_project_template#readme"
+  "homepage": "https://github.com/webkvn/webpack_project_template#readme",
+  "devDependencies": {
+    "css-loader": "^2.1.1",
+    "csv-loader": "^3.0.2",
+    "file-loader": "^3.0.1",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "xml-loader": "^1.2.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11"
+  }
 }
