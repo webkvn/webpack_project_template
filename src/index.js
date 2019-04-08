@@ -3,10 +3,11 @@ import printMe from './print.js';
 import './styles.css';
 
 function component() {
+  console.log('11')
   var element = document.createElement('div');
   var btn = document.createElement('button');
 
-  element.innerHTML = _.join(['Hello', 'webpack','welcome','here'], ' ');
+  element.innerHTML = _.join(['Hello', 'webpack','welcome','here','my '], ' ');
 
   btn.innerHTML = 'Click me and check the console!';
   btn.onclick = printMe;
