@@ -1,28 +1,48 @@
 const path = require('path');
 const webpack = require('webpack');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const glob = require("glob");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const PurifyCssWebpack = require("purifycss-webpack");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const devMode = process.env.NODE_ENV !== 'production'
+
+var entries = getEntry('./src/pages/**/*.js');
+
+let getHtmlConfig = function(name, chunks) {
+  return {
+    template: `./src/${name}/index.html`,
+    filename: `${name}.html`,
+    // favicon: './favicon.ico',
+    // title: title,
+    inject: true,
+    hash: true, //开启hash  ?[hash]
+    chunks: chunks,
+    minify: process.env.NODE_ENV === "development" ? false : {
+      removeComments: true, //移除HTML中的注释
+      collapseWhitespace: true, //折叠空白区域 也就是压缩代码
+      removeAttributeQuotes: true, //去除属性引用
+    },
+  };
+};
 
 module.exports = {
-  entry: {
-    index: path.resolve(__dirname, 'src/index.js'),
-    // another: path.resolve(__dirname, 'src/another-module.js')
-  },
-  output: {
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist')
-  },
+  entry: entries,
   module: {
     rules: [{
-        test: /\.css$/,
-        use: [{
+        test: /\.(css|scss|sass)$/,
+        use: [
+          devMode ? 'style-loader' : {
             loader: MiniCssExtractPlugin.loader,
             options: {
-              publicPath: '../'
+              // you can specify a publicPath here
+              // by default it use publicPath in webpackOptions.output
+              publicPath: './'
             }
           },
-          "css-loader"
+          'css-loader',
+          'postcss-loader',
+          'sass-loader',
         ]
       },
       {
@@ -51,29 +71,44 @@ module.exports = {
       }
     ]
   },
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        commons: {
-          name: "commons",
-          chunks: "initial",
-          minChunks: 2
-        }
-      }
-    }
-  },
   plugins: [
-    new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: path.resolve(__dirname, 'src/index.html'),
-      chunks: ['index']
-    }),
-    new MiniCssExtractPlugin({
-      filename: "[name].css",
-      chunkFilename: "[id].css"
-    }),
-    new webpack.NamedModulesPlugin(),
-    new webpack.HotModuleReplacementPlugin()
+    // new webpack.ProvidePlugin({
+    //   $: "jquery",
+    //   jQuery: "jquery",
+    //   'window.jQuery': 'jquery',
+    // }),
+    new CopyWebpackPlugin([{
+      from: path.resolve(__dirname, "./src/assets"),
+      to: path.resolve(__dirname, "./dist/assets"),
+      ignore: ['.*']
+    }]),
+    new PurifyCssWebpack({
+      paths: glob.sync(path.join(__dirname, "./src/pages/*/*.html"))
+    })
   ]
 };
+
+function getEntry(globPath) {
+  var entries = {},
+    basename, tmp, pathname;
+  glob.sync(globPath).forEach(function(entry) {
+    basename = path.basename(entry, path.extname(entry));
+    tmp = entry.split('/').splice(-3);
+    pathname = tmp.splice(0, 1) + '\/' + basename; // 正确输出js和html的路径
+    entries[pathname] = entry;
+  });
+  return entries;
+}
+
+var htmlArray = [];
+Object.keys(entries).forEach(function(element) {
+  htmlArray.push({
+    _html: element,
+    title: '',
+    chunks: [element]
+  })
+})
+
+htmlArray.forEach((element) => {
+  module.exports.plugins.push(new HtmlWebpackPlugin(getHtmlConfig(element._html, element.chunks)));
+})
