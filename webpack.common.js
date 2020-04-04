@@ -11,7 +11,7 @@ var entries = getEntry('./src/pages/**/*.js');
 
 let getHtmlConfig = function(name, chunks) {
   return {
-    template: `./src/${name}/index.html`,
+    template: `./src/pages/${name}/index.html`,
     filename: `${name}.html`,
     // favicon: './favicon.ico',
     // title: title,
@@ -91,12 +91,15 @@ module.exports = {
 function getEntry(globPath) {
   var entries = {},
     basename, tmp, pathname;
-  glob.sync(globPath).forEach(function(entry) {
-    basename = path.basename(entry, path.extname(entry));
-    tmp = entry.split('/').splice(-3);
-    pathname = tmp.splice(0, 1) + '\/' + basename; // 正确输出js和html的路径
-    entries[pathname] = entry;
-  });
+    glob.sync(globPath).forEach(function(entry) {
+      console.log(entry);
+      basename = path.basename(entry, path.extname(entry));
+      console.log(basename);
+      tmp = entry.split('/').splice(-3);
+      pathname = tmp.splice(0, 1) + '\/' + basename; // 正确输出js和html的路径
+      console.log(pathname);
+      entries[pathname] = entry;
+    });
   return entries;
 }
 

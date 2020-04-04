@@ -26,7 +26,7 @@ module.exports = merge(common, {
       dry: false,
     }),
     new MiniCssExtractPlugin({
-      filename: 'css/[name].[contenthash:8].min.css',
+      filename: './css/[name].[contenthash:8].min.css',
     }),
     new OptimizeCSSPlugin({
       cssProcessorOptions: {
